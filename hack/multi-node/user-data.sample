@@ -1,7 +1,30 @@
 #cloud-config
 
+write_files:
+  - path: "/etc/systemd/journal-upload.conf"
+    permissions: "0644"
+    owner: "root"
+    content: |
+      [Upload]
+      URL=http://10.0.2.2:19532
+  - path: "/etc/tmpfiles.d/systemd-upload.conf"
+    permissions: "0644"
+    owner: "root"
+    content: |
+      d /var/lib/systemd/journal-upload 0755 systemd-journal-upload systemd-journal-upload
+  - path: "/etc/docker/daemon.json"
+    permissions: "0644"
+    owner: "root"
+    content: |
+      {
+        "log-driver": "journald"
+      }
+
 coreos:
   units:
+    - name: systemd-journal-upload.service
+      command: start
+
     - name: kubelet.service
       enable: true
       command: start
