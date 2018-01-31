@@ -64,26 +64,8 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	// start log-collector
-	// don't panic if it fails
-	if err := startLogging(*keypath, *logOuputDir); err != nil {
-		fmt.Println(err)
-	}
-
 	// run tests
 	exitCode := m.Run()
-
-	// cleanup log-collector assests
-	// don't panic if it fails
-	if err := cleanUpLogging(); err != nil {
-		fmt.Println(err)
-	}
-
-	// Collect all logs
-	// don't panic if it fails
-	if err := collectLogs(); err != nil {
-		fmt.Println(err)
-	}
 
 	if err := deleteNamespace(client, namespace); err != nil {
 		fmt.Println(err)
