@@ -19,7 +19,7 @@ for CID in $( docker ps -a -q ); do
   fi
 
   NAME=$( docker inspect $CID | jq '.[0].Name' -r | sed 's/^\/k8s_//g' )
-  FILENAME=${LOGS_DIR}/container-$NAME.log
+  FILENAME=${LOGS_DIR}/containers/$NAME.log
   mkdir -p $(dirname $FILENAME)
   echo "Generating Log for ${NAME} at ${FILENAME}"
   docker logs -t $CID &> $FILENAME || true
@@ -28,7 +28,7 @@ done
 echo Capturing Systemd Logs
 for UNIT in kubelet docker; do
     journalctl -o short-iso --no-hostname -u $UNIT \
-        > "${LOGS_DIR}/${HOSTNAME}-service-$UNIT.log"
+        > "${LOGS_DIR}/services/$UNIT.log"
 done
 
 echo DONE
