@@ -219,7 +219,7 @@ func (as Assets) WriteFiles(path string) error {
 		return err
 	}
 	if len(files) > 0 {
-		return errors.New("Asset directory must be empty.")
+		return errors.New("asset directory must be empty")
 	}
 	for _, asset := range as {
 		if err := asset.WriteFile(path); err != nil {
