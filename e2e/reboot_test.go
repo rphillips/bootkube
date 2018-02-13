@@ -36,10 +36,12 @@ func TestReboot(t *testing.T) {
 	}
 	wg.Wait()
 
+	t.Log("checking if nodes are ready")
 	if err := nodesReady(client, nodeList, t); err != nil {
 		t.Fatalf("some or all nodes did not recover from reboot: %v", err)
 	}
-	if err := controlPlaneReady(client, 120, 5*time.Second); err != nil {
+	t.Log("checking if controlPlane is ready")
+	if err := controlPlaneReady(client, 120, 10*time.Second); err != nil {
 		t.Fatalf("waiting for control plane: %v", err)
 	}
 }
