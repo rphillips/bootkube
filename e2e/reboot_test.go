@@ -91,7 +91,8 @@ const checkpointAnnotation = "checkpointer.alpha.coreos.com/checkpoint-of"
 // in kube-system.
 func controlPlaneReady(c kubernetes.Interface, attempts int, backoff time.Duration) error {
 	return retry(attempts, backoff, func() error {
-		pods, err := c.CoreV1().Pods("kube-system").List(metav1.ListOptions{})
+		timeoutInSeconds := int64(15)
+		pods, err := c.CoreV1().Pods("kube-system").List(metav1.ListOptions{TimeoutSeconds: &timeoutInSeconds})
 		if err != nil {
 			return fmt.Errorf("get pods in kube-system: %v", err)
 		}
