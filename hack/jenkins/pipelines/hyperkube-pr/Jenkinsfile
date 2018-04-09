@@ -1,0 +1,12 @@
+def bash(String cmd) { sh("#/usr/bin/env bash\nset -euo pipefail\n${cmd}") }
+
+podTemplate(label: 'hyperkube-build',
+  containers: [containerTemplate(name: 'build', image: 'quay.io/coreos/hyperkube-builder:0.2', ttyEnabled: true, command: 'cat')],
+  volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]
+) {
+  node('hyperkube-build') {
+    stage('stage 1') {
+      checkout scm
+    }
+  }
+}
