@@ -29,6 +29,7 @@ var (
 	remoteRuntimeEndpoint string
 	runtimeRequestTimeout time.Duration
 	checkpointGracePeriod time.Duration
+	useSecureKubelet      bool
 )
 
 func init() {
@@ -36,6 +37,7 @@ func init() {
 	flag.StringVar(&kubeconfigPath, "kubeconfig", "/etc/kubernetes/kubeconfig", "Path to a kubeconfig file containing credentials used to talk to the kubelet.")
 	flag.Set("logtostderr", "true")
 	flag.StringVar(&remoteRuntimeEndpoint, "container-runtime-endpoint", defaultRuntimeEndpoint, "[Experimental] The endpoint of remote runtime service. Currently unix socket is supported on Linux, and tcp is supported on windows.  Examples:'unix:///var/run/dockershim.sock', 'tcp://localhost:3735'")
+	flag.BoolVar(&useSecureKubelet, "use-secure-kubelet", false, "If enabled, Checkpointer will connect to kubelet over TLS (default: 10250). If disabled, Checkpointer will use the default non-encrypted Kubelet port (default: 10255). ")
 	flag.DurationVar(&runtimeRequestTimeout, "runtime-request-timeout", defaultRuntimeRequestTimeout, "Timeout of all runtime requests except long running request - pull, logs, exec and attach. When timeout exceeded, kubelet will cancel the request, throw out an error and retry later.")
 	flag.DurationVar(&checkpointGracePeriod, "checkpoint-grace-period", defaultCheckpointGracePeriod, "Grace period for cleaning up checkpoints when the parent pod is deleted. Non-zero values are helpful for accommodating control plane eventual consistency.")
 }
@@ -73,6 +75,7 @@ func main() {
 		RemoteRuntimeEndpoint: remoteRuntimeEndpoint,
 		RuntimeRequestTimeout: runtimeRequestTimeout,
 		CheckpointGracePeriod: checkpointGracePeriod,
+		UseSecureKubelet:      useSecureKubelet,
 	}); err != nil {
 		glog.Fatalf("Error starting checkpointer: %v", err)
 	}

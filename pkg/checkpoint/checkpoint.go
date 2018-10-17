@@ -50,6 +50,8 @@ type Options struct {
 	// CheckpointGracePeriod is the timeout that is used for cleaning up checkpoints when the parent
 	// pod is deleted.
 	CheckpointGracePeriod time.Duration
+	// UseSecureKubelet is a flag to enable the secure TLS connection to kubelet
+	UseSecureKubelet bool
 }
 
 // CheckpointerPod holds information about this checkpointer pod.
@@ -64,11 +66,12 @@ type CheckpointerPod struct {
 
 // checkpointer holds state used by the checkpointer to perform its duties.
 type checkpointer struct {
-	apiserver       kubernetes.Interface
-	kubelet         *kubeletClient
-	cri             *remoteRuntimeService
-	checkpointerPod CheckpointerPod
-	checkpoints     checkpoints
+	apiserver        kubernetes.Interface
+	kubelet          *kubeletClient
+	cri              *remoteRuntimeService
+	checkpointerPod  CheckpointerPod
+	checkpoints      checkpoints
+	useSecureKubelet bool
 }
 
 // Run instantiates and starts a new checkpointer. Returns error if there was a problem creating
@@ -76,7 +79,7 @@ type checkpointer struct {
 func Run(opts Options) error {
 	apiserver := kubernetes.NewForConfigOrDie(opts.KubeConfig)
 
-	kubelet, err := newKubeletClient(opts.KubeConfig)
+	kubelet, err := newKubeletClient(opts.KubeConfig, opts.UseSecureKubelet)
 	if err != nil {
 		return fmt.Errorf("failed to load kubelet client: %v", err)
 	}
@@ -90,10 +93,11 @@ func Run(opts Options) error {
 	checkpointGracePeriod = opts.CheckpointGracePeriod
 
 	cp := &checkpointer{
-		apiserver:       apiserver,
-		kubelet:         kubelet,
-		cri:             cri,
-		checkpointerPod: opts.CheckpointerPod,
+		apiserver:        apiserver,
+		kubelet:          kubelet,
+		cri:              cri,
+		checkpointerPod:  opts.CheckpointerPod,
+		useSecureKubelet: opts.UseSecureKubelet,
 	}
 	cp.run()
 
